@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-glpi-deployment
+  labels: 
+    app: glpi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb-glpi
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mariadb-glpi
+    spec:
+      containers:
+      - image: fametec/glpi:9.5.6-mariadb
+        name: mariadb-glpi
+        envFrom: 
+        - secretRef: 
+            name: mariadb-glpi-secret
+        ports: 
+        - containerPort: 3306
+        volumeMounts: 
+        - name: mariadb-glpi-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-glpi-persistent-storage
+        persistentVolumeClaim: 
+          claimName: mariadb-pv-claim
